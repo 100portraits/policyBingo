@@ -16,20 +16,35 @@ export const ExplanationModal = ({ modal, onClose }: ExplanationModalProps) => {
     }
   }, [modal]);
 
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsShowing(false);
+        setTimeout(onClose, 200);
+      }
+    };
+
+    if (isShowing) {
+      document.addEventListener('keydown', handleEscape);
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+      };
+    }
+  }, [isShowing, onClose]);
+
   if (!modal) return null;
 
   const bingoItem = bingoItems.find(item => item.id === modal.bingoItemId);
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      setIsShowing(false);
-      setTimeout(onClose, 200); // Wait for animation to complete
-    }
+  const handleClose = () => {
+    setIsShowing(false);
+    setTimeout(onClose, 200);
   };
 
-  const handleCloseClick = () => {
-    setIsShowing(false);
-    setTimeout(onClose, 200); // Wait for animation to complete
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
   };
 
   return (
@@ -58,7 +73,7 @@ export const ExplanationModal = ({ modal, onClose }: ExplanationModalProps) => {
             <div className="text-lg">{modal.text}</div>
           </div>
           <button 
-            onClick={handleCloseClick}
+            onClick={handleClose}
             className="self-end px-4 py-2 bg-zinc-500 text-white rounded hover:bg-zinc-600 active:bg-zinc-700 transition-colors"
           >
             Close
