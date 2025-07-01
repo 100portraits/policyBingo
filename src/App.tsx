@@ -56,35 +56,51 @@ function App() {
   }
 
   return (
-    <div className="bg-zinc-200 min-h-screen w-full flex flex-col lg:flex-row justify-center gap-8 items-center p-8">
+    <div className="bg-zinc-800 min-h-screen w-full flex flex-col lg:flex-row justify-center gap-8 items-center p-8">
       <div className="flex flex-col gap-4 md:w-fit w-full">
-        <h1 className="text-4xl font-bold uppercase">Mobiliteit Omdenk Bingo</h1>
-        <textarea className="w-full p-4 min-h-48  bg-white ring focus:outline-none focus:ring-3 ring-zinc-500" placeholder="Your platform here..." value={userText} onChange={(e) => setUserText(e.target.value)} />
+        <h1 className="text-4xl font-bold uppercase text-[#44fc75]">Mobiliteit Omdenk Bingo</h1>
+        <textarea 
+          className="w-full p-4 min-h-48 bg-zinc-900 text-white ring-[#44fc75] focus:outline-none focus:ring-2 rounded-lg placeholder:text-zinc-500" 
+          placeholder="Your platform here..." 
+          value={userText} 
+          onChange={(e) => setUserText(e.target.value)} 
+        />
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+          <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg">
             {error}
           </div>
         )}
         <button 
-          className={`w-full p-2 bg-zinc-500 text-white hover:bg-zinc-600 active:bg-zinc-700 transition-colors border-2 border-zinc-900 flex items-center justify-center gap-2 ${!userText.trim() ? 'opacity-50 cursor-not-allowed' : ''}`} 
+          className={`
+            w-full p-2 bg-[#44fc75] text-black font-semibold hover:bg-[#3ce069] active:bg-[#35c75d] 
+            transition-colors border-2 border-[#44fc75] flex items-center justify-center gap-2 rounded-lg
+            ${!userText.trim() ? 'opacity-50 cursor-not-allowed' : ''}
+          `} 
           onClick={handleGenerate}
           disabled={!userText.trim() || isLoading}
         >
           {isLoading ? (
             <>
-              <div className="w-4 h-4 m-1 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <div className="w-4 h-4 m-1 border-2 border-black border-t-transparent rounded-full animate-spin" />
                
             </>
           ) : (
             "Check my platform"
           )}
         </button>
-        <div className={`flex flex-row gap-2 w-full justify-between items-center bg-red-100 pl-4 border ${!showingResults ? 'opacity-0' : 'opacity-100'}`}>
-          <span className="text-md text-zinc-800">
+        <div className={`
+          flex flex-row gap-2 w-full justify-between items-center 
+          bg-zinc-900/50 pl-4 border border-zinc-800 rounded-lg
+          ${!showingResults ? 'opacity-0' : 'opacity-100'}
+        `}>
+          <span className="text-md text-zinc-300">
             Click on a square to see an explanation
           </span>
           <button 
-            className={`w-fit py-2 px-6 bg-red-600 text-white hover:bg-red-700 active:bg-red-800 transition-colors border-2 border-zinc-900`} 
+            className={`
+              w-fit py-2 px-6 bg-red-600 text-white hover:bg-red-700 active:bg-red-800 
+              transition-colors border-l border-zinc-800 font-semibold
+            `} 
             onClick={handleReset}
             disabled={!showingResults}
           >

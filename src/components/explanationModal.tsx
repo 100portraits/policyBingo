@@ -52,29 +52,29 @@ export const ExplanationModal = ({ modal, onClose }: ExplanationModalProps) => {
       className={`
         fixed inset-0 flex items-center justify-center p-4
         transition-all duration-200 ease-in-out
-        ${isShowing ? 'bg-black/80 backdrop-blur-sm' : 'bg-black/0 backdrop-blur-none'}
+        ${isShowing ? 'bg-black/90 backdrop-blur-sm' : 'bg-black/0 backdrop-blur-none'}
       `} 
       onClick={handleOverlayClick}
     >
       <div 
         className={`
-          bg-white rounded-lg p-6 max-w-lg w-full
+          bg-zinc-900 rounded-lg p-6 max-w-lg w-full border border-zinc-800
           transition-all duration-200 ease-in-out
           ${isShowing ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
         `}
       >
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <h2 className="text-2xl font-bold">{bingoItem?.value}</h2>
-            <div className="text-sm text-zinc-600">
+            <h2 className="text-2xl font-bold text-[#44fc75]">{bingoItem?.value}</h2>
+            <div className="text-sm text-zinc-400">
               Keywords: {bingoItem?.keywords.join(", ")}
             </div>
-            <h3 className="text-lg font-bold mt-4">Something to think about:</h3>
-            <div className="text-lg">{modal.text}</div>
+            <h3 className="text-lg font-bold mt-4 text-white">Something to think about:</h3>
+            <div className="text-lg text-zinc-300">{modal.text}</div>
           </div>
           <button 
             onClick={handleClose}
-            className="self-end px-4 py-2 bg-zinc-500 text-white rounded hover:bg-zinc-600 active:bg-zinc-700 transition-colors"
+            className="self-end px-4 py-2 bg-[#44fc75] text-black font-semibold rounded hover:bg-[#3ce069] active:bg-[#35c75d] transition-colors"
           >
             Close
           </button>
