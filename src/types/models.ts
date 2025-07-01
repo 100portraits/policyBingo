@@ -1,7 +1,7 @@
 export interface BingoItem {
   id: number
   value: string
-  keywords?: string[]
+  keywords: string[]
   isMatched?: boolean
 }
 

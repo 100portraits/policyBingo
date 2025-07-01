@@ -2,13 +2,14 @@
 import type { AnalysisRequest, AnalysisResponse, AnalysisResult, BingoItem } from "../types/models"
 
 const buildPrompt = (userText: string, bingoItems: BingoItem[]) => {
+  const valueAndKeywords = bingoItems.map(item => `${item.value} (${item.keywords.join(", ")})`)
   return `
   You are a helpful assistant that can help with the following tasks:
   - Analyze the user's text and determine if it contains any of the bingo items.
   - If it does, return the bingo items that are mentioned, as a list of ids (numbers 1 through 25).
   - If it does not, return an empty array. 
   - The user's text is: ${userText}
-  - The bingo items are: ${bingoItems.map(item => item.value).join(", ")}
+  - The bingo items are: ${valueAndKeywords.join(", ")}
   `
 }
 
