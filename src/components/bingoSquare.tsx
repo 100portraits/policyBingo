@@ -13,8 +13,8 @@ export const BingoSquare = ({ item, isMatched, alternate, onClick }: BingoSquare
       onClick={onClick}
       className={`
         w-full h-full p-2 border-2 border-zinc-900 flex items-center justify-center text-center font-bold text-sm 
-        ${isMatched ? 'bg-green-500 text-white' : alternate ? 'bg-zinc-300' : 'bg-white'}
-        ${isMatched ? 'hover:bg-green-600' : alternate ? 'hover:bg-zinc-400' : 'hover:bg-zinc-300'}
+        ${isMatched ? 'bg-green-600 text-white' : alternate ? 'bg-zinc-300' : 'bg-white'}
+        ${isMatched ? 'hover:bg-green-700' : alternate ? 'hover:bg-zinc-400' : 'hover:bg-zinc-300'}
         transition-colors
         break-words whitespace-normal truncate 
       `}

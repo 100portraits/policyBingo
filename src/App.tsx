@@ -57,10 +57,10 @@ function App() {
                
             </>
           ) : (
-            "Generate"
+            "Check my platform"
           )}
         </button>
-        <div className={`flex flex-row gap-2 w-full justify-between items-center bg-zinc-300 pl-4 border ${!showingResults ? 'opacity-0' : 'opacity-100'}`}>
+        <div className={`flex flex-row gap-2 w-full justify-between items-center bg-red-100 pl-4 border ${!showingResults ? 'opacity-0' : 'opacity-100'}`}>
           <span className="text-md text-zinc-800">
             Click on a square to see an explanation
           </span>
