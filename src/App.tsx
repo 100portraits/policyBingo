@@ -168,6 +168,7 @@ function App() {
       bingoItems: bingoItems
     })
     const matchesList = response.results.matchedItems
+    matchesList.push(13)
     setBingoBoard(bingoBoard.map(item => ({ ...item, isMatched: matchesList.includes(item.id) })))
   }
 
