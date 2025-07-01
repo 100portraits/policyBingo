@@ -6,6 +6,8 @@ import type { BingoItem } from "./types/models"
 function App() {
 
   const [userText, setUserText] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [showingResults, setShowingResults] = useState(false)
 
   const bingoItems = [
     {
@@ -163,6 +165,7 @@ function App() {
   const [bingoBoard, setBingoBoard] = useState<BingoItem[]>(bingoItems)
 
   const handleGenerate = async () => {
+    setIsLoading(true)
     const response = await sendRequest({
       userText: userText,
       bingoItems: bingoItems
@@ -170,16 +173,40 @@ function App() {
     const matchesList = response.results.matchedItems
     matchesList.push(13)
     setBingoBoard(bingoBoard.map(item => ({ ...item, isMatched: matchesList.includes(item.id) })))
+    setIsLoading(false)
+    setShowingResults(true)
+  }
+
+  const handleReset = () => {
+    setBingoBoard(bingoItems)
+    setShowingResults(false)
   }
 
   return (
-    <div className="bg-zinc-200 min-h-screen w-full flex justify-center gap-20 items-center">
-      <div className="flex flex-col gap-4 w-1/3">
-        <textarea className="w-full p-4 min-h-30  rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your platform here..." value={userText} onChange={(e) => setUserText(e.target.value)} />
-        <button className="w-full p-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700 transition-colors" onClick={handleGenerate}>Generate</button>
+    <div className="bg-zinc-200 min-h-screen w-full flex flex-col lg:flex-row justify-center gap-8 items-center p-8">
+      <div className="flex flex-col gap-4 md:w-fit w-full">
+        <h1 className="text-4xl font-bold uppercase">Mobiliteit Omdenk Bingo</h1>
+        <textarea className="w-full p-4 min-h-48  bg-white ring focus:outline-none focus:ring-3 ring-zinc-500" placeholder="Your platform here..." value={userText} onChange={(e) => setUserText(e.target.value)} />
+        <button className="w-full p-2 bg-zinc-500 text-white hover:bg-zinc-600 active:bg-zinc-700 transition-colors border-2 border-zinc-900 flex items-center justify-center gap-2" onClick={handleGenerate}>
+          {isLoading ? (
+            <>
+              <div className="w-4 h-4 m-1 border-2 border-white border-t-transparent rounded-full animate-spin" />
+               
+            </>
+          ) : (
+            "Generate"
+          )}
+        </button>
+        <button 
+          className={`w-fit py-2 px-6 bg-red-600 text-white hover:bg-red-700 active:bg-red-800 transition-colors border-2 border-zinc-900 ${!showingResults ? 'opacity-0' : 'opacity-100'} self-end`} 
+          onClick={handleReset}
+          disabled={!showingResults}
+        >
+          Reset
+        </button>
       </div>
       <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-5 gap-2">
           {bingoBoard.map((item, index) => (
             <BingoSquare key={item.id} item={item} isMatched={item.isMatched || false} alternate={index % 2 === 1} />
           ))}
