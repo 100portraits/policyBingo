@@ -83,8 +83,8 @@ function App() {
     {
       id: 13,
       value: "LAB",
-      keywords: ["laboratory", "research", "testing", "onderzoek", "laboratorium"],
-      isMatched: false
+      keywords: [],
+      isMatched: true
     },
     {
       id: 14,
