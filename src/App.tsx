@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { BingoSquare } from "./components/bingoSquare"
-import { sendRequest } from "./services/llmService"
+import { sendRequest, RateLimitError } from "./services/llmService"
 import type { BingoItem, BingoItemModal } from "./types/models"
 import { bingoItemModals } from "./data/bingoItemModals"
 import { ExplanationModal } from "./components/explanationModal"
@@ -12,26 +12,40 @@ function App() {
   const [isLoading, setIsLoading] = useState(false)
   const [showingResults, setShowingResults] = useState(false)
   const [currentModal, setCurrentModal] = useState<BingoItemModal | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const [bingoBoard, setBingoBoard] = useState<BingoItem[]>(bingoItems)
 
   const handleGenerate = async () => {
     if (!userText.trim()) return
     setIsLoading(true)
-    const response = await sendRequest({
-      userText: userText,
-      bingoItems: bingoItems
-    })
-    const matchesList = response.results.matchedItems
-    matchesList.push(13)
-    setBingoBoard(bingoBoard.map(item => ({ ...item, isMatched: matchesList.includes(item.id) })))
-    setIsLoading(false)
-    setShowingResults(true)
+    setError(null)
+    
+    try {
+      const response = await sendRequest({
+        userText: userText,
+        bingoItems: bingoItems
+      })
+      const matchesList = response.results.matchedItems
+      matchesList.push(13)
+      setBingoBoard(bingoBoard.map(item => ({ ...item, isMatched: matchesList.includes(item.id) })))
+      setShowingResults(true)
+    } catch (e) {
+      if (e instanceof RateLimitError) {
+        const waitTimeSeconds = Math.ceil(e.timeUntilNextRequest / 1000);
+        setError(`Rate limit reached. Please wait ${waitTimeSeconds} seconds. You have used ${5 - e.remainingRequests}/5 requests in the last minute.`);
+      } else {
+        setError("An error occurred while analyzing your text. Please try again.");
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleReset = () => {
     setBingoBoard(bingoItems)
     setShowingResults(false)
+    setError(null)
   }
 
   const handleSquareClick = (itemId: number) => {
@@ -46,6 +60,11 @@ function App() {
       <div className="flex flex-col gap-4 md:w-fit w-full">
         <h1 className="text-4xl font-bold uppercase">Mobiliteit Omdenk Bingo</h1>
         <textarea className="w-full p-4 min-h-48  bg-white ring focus:outline-none focus:ring-3 ring-zinc-500" placeholder="Your platform here..." value={userText} onChange={(e) => setUserText(e.target.value)} />
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+            {error}
+          </div>
+        )}
         <button 
           className={`w-full p-2 bg-zinc-500 text-white hover:bg-zinc-600 active:bg-zinc-700 transition-colors border-2 border-zinc-900 flex items-center justify-center gap-2 ${!userText.trim() ? 'opacity-50 cursor-not-allowed' : ''}`} 
           onClick={handleGenerate}

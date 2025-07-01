@@ -1,5 +1,18 @@
 //file to handle the LLM calls and responses
 import type { AnalysisRequest, AnalysisResponse, AnalysisResult, BingoItem } from "../types/models"
+import { rateLimiter } from "./rateLimiter"
+
+export class RateLimitError extends Error {
+  timeUntilNextRequest: number;
+  remainingRequests: number;
+
+  constructor(timeUntilNextRequest: number, remainingRequests: number) {
+    super("Rate limit exceeded");
+    this.name = "RateLimitError";
+    this.timeUntilNextRequest = timeUntilNextRequest;
+    this.remainingRequests = remainingRequests;
+  }
+}
 
 const buildPrompt = (userText: string, bingoItems: BingoItem[]) => {
   const valueAndKeywords = bingoItems.map(item => `${item.value} (${item.keywords.join(", ")})`)
@@ -15,6 +28,13 @@ const buildPrompt = (userText: string, bingoItems: BingoItem[]) => {
 
 //send request to LLM with openrouter
 export const sendRequest = async (request: AnalysisRequest) => {
+  if (!rateLimiter.canMakeRequest()) {
+    throw new RateLimitError(
+      rateLimiter.getTimeUntilNextRequest(),
+      rateLimiter.getRemainingRequests()
+    );
+  }
+
   const prompt = buildPrompt(request.userText, request.bingoItems)
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
@@ -34,6 +54,7 @@ export const sendRequest = async (request: AnalysisRequest) => {
     throw new Error("Failed to send request to LLM")
   }
 
+  rateLimiter.logRequest();
   const data = await response.json()
   const responseContent = data.choices[0].message.content
   return formatResponse(responseContent)
@@ -53,5 +74,4 @@ export const formatResponse = (response: string): AnalysisResponse => {
     results: results,
     error: undefined
   }
-
 }
