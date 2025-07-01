@@ -5,6 +5,11 @@ export interface BingoItem {
   isMatched?: boolean
 }
 
+export interface BingoItemModal {
+  bingoItemId: number;
+  text: string;
+}
+
 export interface AnalysisResult {
   matchedItems: number[]; //ids of BingoItems that are matched
   confidence?: number; //0-100
