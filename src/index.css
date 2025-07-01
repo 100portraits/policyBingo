@@ -1,1 +1,32 @@
 @import "tailwindcss";
+
+/* Custom scrollbar styling */
+textarea {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #44fc75 #18181B; /* Firefox */
+}
+
+/* Chrome, Edge, and Safari */
+textarea::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+textarea::-webkit-scrollbar-track {
+  background: #18181B;
+  border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background: #44fc75;
+  border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+  background: #3ce069;
+}
+
+/* For corner where vertical and horizontal scrollbars meet */
+textarea::-webkit-scrollbar-corner {
+  background: #18181B;
+}
