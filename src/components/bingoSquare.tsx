@@ -1,4 +1,6 @@
 import type { BingoItem } from "../types/models"
+import { hyphenate } from "hyphen/nl"
+import { useState, useEffect } from "react"
 
 interface BingoSquareProps {
   item: BingoItem
@@ -9,6 +11,18 @@ interface BingoSquareProps {
 
 export const BingoSquare = ({ item, isMatched, alternate, onClick }: BingoSquareProps) => {
   const isLabSquare = item.id === 13;
+  const [hyphenatedText, setHyphenatedText] = useState(item.value);
+
+  useEffect(() => {
+    const hyphenateText = async () => {
+      const text = await hyphenate(item.value);
+      setHyphenatedText(text);
+    };
+    
+    if (!isLabSquare) {
+      hyphenateText();
+    }
+  }, [item.value, isLabSquare]);
 
   return (
     <button 
@@ -28,7 +42,7 @@ export const BingoSquare = ({ item, isMatched, alternate, onClick }: BingoSquare
           className="w-full h-full object-contain"
         />
       ) : (
-        item.value
+        hyphenatedText
       )}
     </button>
   )
