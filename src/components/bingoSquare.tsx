@@ -8,6 +8,8 @@ interface BingoSquareProps {
 }
 
 export const BingoSquare = ({ item, isMatched, alternate, onClick }: BingoSquareProps) => {
+  const isLabSquare = item.id === 13;
+
   return (
     <button 
       onClick={onClick}
@@ -16,9 +18,18 @@ export const BingoSquare = ({ item, isMatched, alternate, onClick }: BingoSquare
         ${isMatched ? 'bg-[#44fc75] text-black' : alternate ? 'bg-zinc-900 text-white' : 'bg-zinc-700 text-white'}
         hover:opacity-80 transition-all duration-200
         break-words whitespace-normal truncate rounded-lg
+        ${isLabSquare ? 'p-1' : 'p-2'}
       `}
     >
-      {item.value}
+      {isLabSquare ? (
+        <img 
+          src="/LAB_logo.jpg" 
+          alt="LAB Logo" 
+          className="w-full h-full object-contain"
+        />
+      ) : (
+        item.value
+      )}
     </button>
   )
 }
