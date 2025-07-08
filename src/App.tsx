@@ -4,6 +4,7 @@ import { sendRequest, RateLimitError } from "./services/llmService"
 import type { BingoItem, BingoItemModal } from "./types/models"
 import { bingoItemModals } from "./data/bingoItemModals"
 import { ExplanationModal } from "./components/explanationModal"
+import { LabModal } from "./components/labModal"
 import { bingoItems } from "./data/bingoItems"
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false)
   const [showingResults, setShowingResults] = useState(false)
   const [currentModal, setCurrentModal] = useState<BingoItemModal | null>(null)
+  const [isLabModalOpen, setIsLabModalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [bingoBoard, setBingoBoard] = useState<BingoItem[]>(bingoItems)
@@ -49,6 +51,11 @@ function App() {
   }
 
   const handleSquareClick = (itemId: number) => {
+    if (itemId === 13) {
+      setIsLabModalOpen(true);
+      return;
+    }
+    
     const modalContent = bingoItemModals.find(modal => modal.bingoItemId === itemId)
     if (modalContent) {
       setCurrentModal(modalContent)
@@ -126,6 +133,10 @@ function App() {
       <ExplanationModal 
         modal={currentModal} 
         onClose={() => setCurrentModal(null)} 
+      />
+      <LabModal
+        isOpen={isLabModalOpen}
+        onClose={() => setIsLabModalOpen(false)}
       />
     </div>
   )

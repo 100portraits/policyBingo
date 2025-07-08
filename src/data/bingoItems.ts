@@ -39,13 +39,13 @@ export const bingoItems: BingoItem[] = [
   },
   {
     id: 7,
-    value: "VERKEERS VEILIGHEID",
+    value: "VERKEERSVEILIGHEID",
     keywords: ["traffic safety", "road safety", "safe driving", "veilig verkeer", "verkeersveilig"],
     isMatched: false
   },
   {
     id: 8,
-    value: "LAAD INFRASTRUCTUUR",
+    value: "LAADINFRASTRUCTUUR",
     keywords: ["charging infrastructure", "ev charging", "laadpaal", "laadstation", "oplaadpunt"],
     isMatched: false
   },
@@ -57,7 +57,7 @@ export const bingoItems: BingoItem[] = [
   },
   {
     id: 10,
-    value: "DOOR FIETS ROUTE",
+    value: "DOORFIETSROUTE",
     keywords: ["bicycle route", "bike path", "cycling route", "fietspad", "fietsroute"],
     isMatched: false
   },
@@ -69,7 +69,7 @@ export const bingoItems: BingoItem[] = [
   },
   {
     id: 12,
-    value: "PARKEER VERGUNNING",
+    value: "PARKEERVERGUNNING",
     keywords: ["parking permit", "parking license", "parkeerplaats", "parkeren", "vergunning"],
     isMatched: false
   },
@@ -81,7 +81,7 @@ export const bingoItems: BingoItem[] = [
   },
   {
     id: 14,
-    value: "REIS TIJD WINST",
+    value: "REISTIJDWINST",
     keywords: ["travel time gain", "time saving", "faster journey", "tijdwinst", "snellere reis"],
     isMatched: false
   },
@@ -93,13 +93,13 @@ export const bingoItems: BingoItem[] = [
   },
   {
     id: 16,
-    value: "ZELF RIJDEND",
+    value: "ZELFRIJDEND",
     keywords: ["self-driving", "autonomous", "automated", "autonoom", "zelfrijdend"],
     isMatched: false
   },
   {
     id: 17,
-    value: "DOOR STROMING",
+    value: "DOORSTROMING",
     keywords: ["flow", "traffic flow", "circulation", "verkeersstroom", "doorstroom"],
     isMatched: false
   },
@@ -117,7 +117,7 @@ export const bingoItems: BingoItem[] = [
   },
   {
     id: 20,
-    value: "WOON WERK VERKEER",
+    value: "WOON WERKVERKEER",
     keywords: ["commute", "commuter traffic", "rush hour", "forens", "spitsuur"],
     isMatched: false
   },
@@ -129,7 +129,7 @@ export const bingoItems: BingoItem[] = [
   },
   {
     id: 22,
-    value: "PARKEER DRUK",
+    value: "PARKEERDRUK",
     keywords: ["parking pressure", "parking demand", "parking shortage", "parkeertekort", "parkeerprobleem"],
     isMatched: false
   },
