@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { BingoSquare } from "./bingoSquare"
-import type { BingoItem } from "../types/models"
+import type { BingoItem } from "../../types/models"
 import { BingoModal } from "./BingoModal"
 
 interface BingoBoardProps {

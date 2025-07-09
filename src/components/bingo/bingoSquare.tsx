@@ -1,4 +1,4 @@
-import type { BingoItem } from "../types/models"
+import type { BingoItem } from "../../types/models"
 import { hyphenate } from "hyphen/nl"
 import { useState, useEffect } from "react"
 

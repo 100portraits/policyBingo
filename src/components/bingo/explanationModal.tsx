@@ -1,5 +1,5 @@
-import type { BingoItemModal } from "../types/models";
-import { bingoItems } from "../data/bingoItems";
+import type { BingoItemModal } from "../../types/models";
+import { bingoItems } from "../../data/bingoItems";
 import { useEffect, useState } from "react";
 
 interface ExplanationModalProps {

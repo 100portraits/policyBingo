@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { VersionManager, type SavedVersion } from "../services/versionManager"
+import { VersionManager, type SavedVersion } from "./versionManager"
 
 interface LoadVersionModalProps {
   isOpen: boolean
