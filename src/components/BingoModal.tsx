@@ -63,7 +63,7 @@ export const BingoModal = ({ isOpen, onClose }: BingoModalProps) => {
           <div className="flex flex-col gap-2">
             <h2 className="text-3xl font-bold text-[#44fc75] mb-4">🎉 BINGO! 🎉</h2>
             <p className="text-lg text-zinc-300">
-              Congratulations! You've got a bingo! Your mobility policy shows strong alignment with technocratic language. Might it be time to rethink, based on your real values?
+              Congratulations! You've got a bingo! Your mobility policy shows an alignment with technocratic language. <br/> <br/> Is it time to rethink based on your real values?
             </p>
           </div>
           <button
