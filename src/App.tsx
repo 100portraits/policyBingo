@@ -1,12 +1,11 @@
 import { useState } from "react"
-import { BingoSquare } from "./components/bingoSquare"
 import { sendRequest, RateLimitError } from "./services/llmService"
 import type { BingoItem, BingoItemModal } from "./types/models"
 import { bingoItemModals } from "./data/bingoItemModals"
 import { ExplanationModal } from "./components/explanationModal"
 import { LabModal } from "./components/labModal"
 import { bingoItems } from "./data/bingoItems"
-import { BingoBoard } from "./components/bingoBoard"
+import { BingoBoard } from "./components/BingoBoard"
 
 function App() {
 
