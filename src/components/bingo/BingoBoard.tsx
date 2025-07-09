@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { BingoSquare } from "./bingoSquare"
-import type { BingoItem } from "../types/models"
+import type { BingoItem } from "../../types/models"
 import { BingoModal } from "./BingoModal"
 
 interface BingoBoardProps {
@@ -56,7 +56,7 @@ export const BingoBoard = ({ bingoBoard, onSquareClick }: BingoBoardProps) => {
   }, [bingoBoard])
 
   return (
-    <div className="h-full flex items-center justify-center">
+    <div className="h-full flex justify-center items-center">
       <div className="aspect-square h-[calc(100vh-4rem)] max-w-[calc(100vh-4rem)]">
         <div className="grid grid-cols-5 grid-rows-5 gap-2 h-full">
           {bingoBoard.map((item, index) => (

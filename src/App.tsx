@@ -1,31 +1,44 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { sendRequest, RateLimitError } from "./services/llmService"
 import type { BingoItem, BingoItemModal } from "./types/models"
 import { bingoItemModals } from "./data/bingoItemModals"
-import { ExplanationModal } from "./components/explanationModal"
-import { LabModal } from "./components/labModal"
+import { ExplanationModal } from "./components/bingo/explanationModal"
+import { LabModal } from "./components/bingo/labModal"
+import { SaveVersionModal } from "./components/editor/versioning/SaveVersionModal"
+import { LoadVersionModal } from "./components/editor/versioning/LoadVersionModal"
 import { bingoItems } from "./data/bingoItems"
-import { BingoBoard } from "./components/BingoBoard"
+import { BingoBoard } from "./components/bingo/BingoBoard"
+import { RichTextEditor, type RichTextEditorRef } from "./components/editor/RichTextEditor"
+import { FolderClosed, Save } from "lucide-react"
 
 function App() {
 
-  const [userText, setUserText] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showingResults, setShowingResults] = useState(false)
   const [currentModal, setCurrentModal] = useState<BingoItemModal | null>(null)
   const [isLabModalOpen, setIsLabModalOpen] = useState(false)
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
+  const [isLoadModalOpen, setIsLoadModalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [bingoBoard, setBingoBoard] = useState<BingoItem[]>(bingoItems)
 
+  // Ref to access the RichTextEditor methods
+  const editorRef = useRef<RichTextEditorRef>(null)
+
   const handleGenerate = async () => {
-    if (!userText.trim()) return
+    // Get plain text content from the editor
+    if (!editorRef.current) return
+    
+    const plainText = await editorRef.current.getPlainText()
+    
+    if (!plainText) return
     setIsLoading(true)
     setError(null)
     
     try {
       const response = await sendRequest({
-        userText: userText,
+        userText: plainText,
         bingoItems: bingoItems
       })
       const matchesList = response.results.matchedItems
@@ -62,29 +75,76 @@ function App() {
     }
   }
 
+  const handleSaveVersion = async (name: string) => {
+    if (!editorRef.current) {
+      throw new Error("Editor not available")
+    }
+    
+    try {
+      await editorRef.current.saveVersion(name)
+    } catch (error) {
+      console.error("Error saving version:", error)
+      throw error
+    }
+  }
+
+  const handleLoadVersion = async (versionId: string) => {
+    if (!editorRef.current) {
+      throw new Error("Editor not available")
+    }
+    
+    try {
+      await editorRef.current.loadVersion(versionId)
+    } catch (error) {
+      console.error("Error loading version:", error)
+      throw error
+    }
+  }
+
   return (
-    <div className="bg-zinc-800 min-h-screen w-full flex flex-col lg:flex-row justify-center gap-8 items-center p-8">
-      <div className="flex flex-col gap-4 md:w-fit w-full">
-        <h1 className="text-4xl font-bold uppercase text-[#44fc75]">Mobiliteit Omdenk Bingo</h1>
-        <textarea 
-          className="w-full p-4 min-h-48 bg-zinc-900 text-white ring-[#44fc75] focus:outline-none focus:ring-2 rounded-lg placeholder:text-zinc-500" 
-          placeholder="Your platform here..." 
-          value={userText} 
-          onChange={(e) => setUserText(e.target.value)} 
+    <div className="bg-zinc-800 min-h-screen w-full flex flex-col lg:flex-row items-center lg:gap-8  p-8">
+      <div className="flex flex-col gap-4 w-full ">
+        <img src="/LAB_logo.jpg" alt="Lab of Through" className="w-32 h-32" />
+        <h1 className="lg:text-5xl font-bold uppercase text-[#44fc75] mb-8">Mobiliteit Omdenk Bingo</h1>
+        <h3 className="text-lg text-[#44fc75] font-bold -mb-2">The Platform Builder:</h3>
+        <RichTextEditor 
+          ref={editorRef}
+          className="w-full min-h-72 max-h-96 bg-zinc-900 text-white ring-[#44fc75] focus-within:ring-2 rounded-lg overflow-y-auto"
         />
         {error && (
           <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg">
             {error}
           </div>
         )}
+        
+        {/* Version management buttons */}
+        <div className="flex gap-2 -mt-1 w-full mb-2">
+          <button 
+            className="p-2 px-4 w-fit bg-zinc-700 text-white font-semibold hover:bg-zinc-600 active:bg-zinc-800 
+                       transition-colors border-2 border-zinc-600 flex items-center justify-center gap-2 rounded-lg"
+            onClick={() => setIsSaveModalOpen(true)}
+          >
+            <Save className="w-4 h-4" />
+            <span>Save</span>
+          </button>
+          <button 
+            className="p-2 px-4 w-fit bg-zinc-700 text-white font-semibold hover:bg-zinc-600 active:bg-zinc-800 
+                       transition-colors border-2 border-zinc-600 flex items-center justify-center gap-2 rounded-lg"
+            onClick={() => setIsLoadModalOpen(true)}
+          >
+            <FolderClosed className="w-4 h-4" />
+            <span>Load</span>
+          </button>
+        </div>
+        
         <button 
           className={`
             w-full p-2 bg-[#44fc75] text-black font-semibold hover:bg-[#3ce069] active:bg-[#35c75d] 
             transition-colors border-2 border-[#44fc75] flex items-center justify-center gap-2 rounded-lg
-            ${!userText.trim() ? 'opacity-50 cursor-not-allowed' : ''}
+            ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
           `} 
           onClick={handleGenerate}
-          disabled={!userText.trim() || isLoading}
+          disabled={isLoading}
         >
           {isLoading ? (
             <>
@@ -115,10 +175,12 @@ function App() {
           </button>
         </div>
       </div>
+      <div className="flex flex-col gap-4 w-full flex-3/5">
       <BingoBoard 
         bingoBoard={bingoBoard}
         onSquareClick={handleSquareClick}
-      />
+        />
+      </div>
       <ExplanationModal 
         modal={currentModal} 
         onClose={() => setCurrentModal(null)} 
@@ -126,6 +188,16 @@ function App() {
       <LabModal
         isOpen={isLabModalOpen}
         onClose={() => setIsLabModalOpen(false)}
+      />
+      <SaveVersionModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        onSave={handleSaveVersion}
+      />
+      <LoadVersionModal
+        isOpen={isLoadModalOpen}
+        onClose={() => setIsLoadModalOpen(false)}
+        onLoadVersion={handleLoadVersion}
       />
     </div>
   )

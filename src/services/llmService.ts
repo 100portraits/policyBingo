@@ -28,6 +28,9 @@ const buildPrompt = (userText: string, bingoItems: BingoItem[]) => {
 
 //send request to LLM with openrouter
 export const sendRequest = async (request: AnalysisRequest) => {
+
+  console.log("Sending text to LLM:", request.userText)
+
   if (!rateLimiter.canMakeRequest()) {
     throw new RateLimitError(
       rateLimiter.getTimeUntilNextRequest(),

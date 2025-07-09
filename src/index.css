@@ -1,32 +1,54 @@
 @import "tailwindcss";
+@import "@blocknote/core/fonts/inter.css";
+@import "@blocknote/mantine/style.css";
+
+
+.bn-container {
+  display: flex;
+  flex-direction: column-reverse;
+}
+ 
+.bn-formatting-toolbar {
+  margin: 8px 8px 8px 0px;
+}
+
+.bn-editor {
+  padding-inline: 16px;
+}
 
 /* Custom scrollbar styling */
-textarea {
+textarea, 
+.bn-editor {
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: #44fc75 #18181B; /* Firefox */
 }
 
 /* Chrome, Edge, and Safari */
-textarea::-webkit-scrollbar {
+textarea::-webkit-scrollbar,
+.bn-editor::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-textarea::-webkit-scrollbar-track {
+textarea::-webkit-scrollbar-track,
+.bn-editor::-webkit-scrollbar-track {
   background: #18181B;
   border-radius: 4px;
 }
 
-textarea::-webkit-scrollbar-thumb {
+textarea::-webkit-scrollbar-thumb,
+.bn-editor::-webkit-scrollbar-thumb {
   background: #44fc75;
   border-radius: 4px;
 }
 
-textarea::-webkit-scrollbar-thumb:hover {
+textarea::-webkit-scrollbar-thumb:hover,
+.bn-editor::-webkit-scrollbar-thumb:hover {
   background: #3ce069;
 }
 
 /* For corner where vertical and horizontal scrollbars meet */
-textarea::-webkit-scrollbar-corner {
+textarea::-webkit-scrollbar-corner,
+.bn-editor::-webkit-scrollbar-corner {
   background: #18181B;
 }
