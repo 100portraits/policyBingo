@@ -10,10 +10,14 @@ export interface BingoItemModal {
   text: string;
 }
 
+export interface MatchedItem {
+  id: number;
+  motivation: string;
+  evidence: string;
+}
+
 export interface AnalysisResult {
-  matchedItems: number[]; //ids of BingoItems that are matched
-  confidence?: number; //0-100
-  explanation?: string; //explanation of the match
+  matchedItems: MatchedItem[];
 }
 
 export interface AnalysisRequest {

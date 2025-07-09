@@ -1,5 +1,5 @@
 //file to handle the LLM calls and responses
-import type { AnalysisRequest, AnalysisResponse, AnalysisResult, BingoItem } from "../types/models"
+import type { AnalysisRequest, AnalysisResponse, AnalysisResult, MatchedItem, BingoItem } from "../types/models"
 import { rateLimiter } from "./rateLimiter"
 
 export class RateLimitError extends Error {
@@ -14,16 +14,22 @@ export class RateLimitError extends Error {
   }
 }
 
-const buildPrompt = (userText: string, bingoItems: BingoItem[]) => {
-  const valueAndKeywords = bingoItems.map(item => `${item.value} (${item.keywords.join(", ")})`)
-  return `
-  You are a helpful assistant that can help with the following tasks:
-  - Analyze the user's text and determine if it contains any of the bingo items.
-  - If it does, return the bingo items that are mentioned, as a list of ids (numbers 1 through 25).
-  - If it does not, return an empty array. 
-  - The user's text is: ${userText}
-  - The bingo items are: ${valueAndKeywords.join(", ")}
-  `
+const buildSystemPrompt = (bingoItems: BingoItem[]): string => {
+  const itemsWithIds = bingoItems.map(item => 
+    `${item.id}: ${item.value} (${item.keywords.join(", ")})`)
+
+  return `You are a helpful assistant that analyzes user text to find matches with bingo items. You will receive a list of bingo items, each with a unique id and a set of keywords. 
+  
+  Your task is to identify which bingo items match the user's text based on the keywords provided.
+
+  Consider the following when analyzing the user text:
+  - The user text is in Dutch and may contain variations, abbreviations, or common phrases
+  - Use a combination of exact keyword matching, common variations, and clear English-Dutch equivalents
+
+  Bingo items: ${itemsWithIds.join(", ")}
+
+  Provide a JSON response with the speficied structure.
+  If no items are matched, return: {"matches": []}`
 }
 
 //send request to LLM with openrouter
@@ -35,7 +41,7 @@ export const sendRequest = async (request: AnalysisRequest) => {
     );
   }
 
-  const prompt = buildPrompt(request.userText, request.bingoItems)
+  const systemPrompt = buildSystemPrompt(request.bingoItems)
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -44,9 +50,39 @@ export const sendRequest = async (request: AnalysisRequest) => {
     },
     body: JSON.stringify({
       model: "google/gemini-2.0-flash-001",
-      messages: [{ role: "user", content: prompt }],
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: request.userText }],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: "AnalysisResponse",
+          strict: true,
+          schema: {
+            type: "object",
+            properties: {
+              matches : {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "integer" },
+                    motivation: { type: "string" },
+                    evidence: { type: "string" }
+                  },
+                  required: ["id", "motivation", "evidence"],
+                  additionalProperties: false,
+                }
+              }
+            },
+            required: ["matches"],
+            additionalProperties: false,
+          }
+        }
+      },
       max_tokens: 1000,
-      temperature: 0.5
+      temperature: 0.2,
+      top_p: 0.9,
     })
   })
 
@@ -57,21 +93,38 @@ export const sendRequest = async (request: AnalysisRequest) => {
   rateLimiter.logRequest();
   const data = await response.json()
   const responseContent = data.choices[0].message.content
+
+  // Log the LLM response for debugging
+  console.log("LLM Response:", responseContent);
+
   return formatResponse(responseContent)
 }
 
-//format data into AnalysisResponse type (it will return just an array of numbers like [1, 2, 3, 4, 5])
+//format data into AnalysisResponse type
 export const formatResponse = (response: string): AnalysisResponse => {
-  //remove the first and last character of the response
-  const cleanedResponse = response.slice(1, -2)
-  const matchedItems = cleanedResponse.split(",").map(Number)
+  try {
+    const parsedResponse = JSON.parse(response);
+    
+    // With structured output, we can trust the schema is followed
+    const matchedItems: MatchedItem[] = parsedResponse.matches.map((match: any) => ({
+      id: match.id,
+      motivation: match.motivation,
+      evidence: match.evidence
+    }));
 
-  const results: AnalysisResult = {
-    matchedItems: matchedItems,
-  }
+    const results: AnalysisResult = {
+      matchedItems: matchedItems,
+    }
 
-  return {
-    results: results,
-    error: undefined
+    return {
+      results: results,
+      error: undefined
+    }
+  } catch (error) {
+    console.error("Failed to parse LLM response:", error);
+    return {
+      results: { matchedItems: [] },
+      error: "Failed to parse LLM response"
+    }
   }
 }
