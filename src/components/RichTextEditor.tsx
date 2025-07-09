@@ -1,10 +1,15 @@
 import { forwardRef, useImperativeHandle } from "react"
 import { BasicTextStyleButton, BlockTypeSelect, FormattingToolbar, useCreateBlockNote } from "@blocknote/react"
 import { BlockNoteView } from "@blocknote/mantine"
+import { VersionManager, type SavedVersion } from "../utils/versionManager"
 
 export interface RichTextEditorRef {
   getPlainText: () => Promise<string>
   getContent: () => Promise<string>
+  saveVersion: (name: string) => Promise<SavedVersion>
+  loadVersion: (versionId: string) => Promise<void>
+  getSavedVersions: () => SavedVersion[]
+  deleteVersion: (versionId: string) => void
 }
 
 interface RichTextEditorProps {
@@ -27,11 +32,65 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
     // Expose methods to parent component
     useImperativeHandle(ref, () => ({
       getPlainText: async () => {
-        const content = await editor.blocksToFullHTML(editor.document)
-        return content.replace(/<[^>]*>/g, '').trim() // Strip HTML tags for plain text
+        // Use markdown conversion to preserve block structure, then strip markdown formatting
+        const markdown = await editor.blocksToMarkdownLossy(editor.document)
+        // Remove markdown formatting but keep line breaks
+        return markdown
+          .replace(/^#{1,6}\s+/gm, '') // Remove headers
+          .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+          .replace(/\*(.*?)\*/g, '$1') // Remove italic
+          .replace(/`(.*?)`/g, '$1') // Remove inline code
+          .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
+          .replace(/^\s*[-*+]\s+/gm, '') // Remove bullet points
+          .replace(/^\s*\d+\.\s+/gm, '') // Remove numbered list markers
+          .replace(/^\s*>\s+/gm, '') // Remove blockquotes
+          .replace(/```[\s\S]*?```/g, '') // Remove code blocks
+          .replace(/---+/g, '') // Remove horizontal rules
+          .trim()
       },
       getContent: async () => {
         return await editor.blocksToFullHTML(editor.document)
+      },
+      saveVersion: async (name: string) => {
+        const content = await editor.blocksToFullHTML(editor.document)
+        // Use the improved plain text extraction for preview
+        const plainText = await (async () => {
+          const markdown = await editor.blocksToMarkdownLossy(editor.document)
+          return markdown
+            .replace(/^#{1,6}\s+/gm, '') // Remove headers
+            .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+            .replace(/\*(.*?)\*/g, '$1') // Remove italic
+            .replace(/`(.*?)`/g, '$1') // Remove inline code
+            .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
+            .replace(/^\s*[-*+]\s+/gm, '') // Remove bullet points
+            .replace(/^\s*\d+\.\s+/gm, '') // Remove numbered list markers
+            .replace(/^\s*>\s+/gm, '') // Remove blockquotes
+            .replace(/```[\s\S]*?```/g, '') // Remove code blocks
+            .replace(/---+/g, '') // Remove horizontal rules
+            .trim()
+        })()
+        return VersionManager.saveVersion(name, content, plainText)
+      },
+      loadVersion: async (versionId: string) => {
+        const version = VersionManager.getVersion(versionId)
+        if (!version) {
+          throw new Error('Version not found')
+        }
+        
+        try {
+          // Try to parse the content as HTML and replace the editor content
+          const blocks = await editor.tryParseHTMLToBlocks(version.content)
+          editor.replaceBlocks(editor.document, blocks)
+        } catch (error) {
+          console.error('Error loading version:', error)
+          throw new Error('Failed to load version content')
+        }
+      },
+      getSavedVersions: () => {
+        return VersionManager.getSavedVersions()
+      },
+      deleteVersion: (versionId: string) => {
+        VersionManager.deleteVersion(versionId)
       }
     }))
 

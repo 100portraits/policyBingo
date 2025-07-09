@@ -4,6 +4,7 @@ import type { BingoItem, BingoItemModal } from "./types/models"
 import { bingoItemModals } from "./data/bingoItemModals"
 import { ExplanationModal } from "./components/explanationModal"
 import { LabModal } from "./components/labModal"
+import { VersionModal } from "./components/VersionModal"
 import { bingoItems } from "./data/bingoItems"
 import { BingoBoard } from "./components/BingoBoard"
 import { RichTextEditor, type RichTextEditorRef } from "./components/RichTextEditor"
@@ -14,6 +15,7 @@ function App() {
   const [showingResults, setShowingResults] = useState(false)
   const [currentModal, setCurrentModal] = useState<BingoItemModal | null>(null)
   const [isLabModalOpen, setIsLabModalOpen] = useState(false)
+  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [bingoBoard, setBingoBoard] = useState<BingoItem[]>(bingoItems)
@@ -70,6 +72,32 @@ function App() {
     }
   }
 
+  const handleSaveVersion = async (name: string) => {
+    if (!editorRef.current) {
+      throw new Error("Editor not available")
+    }
+    
+    try {
+      await editorRef.current.saveVersion(name)
+    } catch (error) {
+      console.error("Error saving version:", error)
+      throw error
+    }
+  }
+
+  const handleLoadVersion = async (versionId: string) => {
+    if (!editorRef.current) {
+      throw new Error("Editor not available")
+    }
+    
+    try {
+      await editorRef.current.loadVersion(versionId)
+    } catch (error) {
+      console.error("Error loading version:", error)
+      throw error
+    }
+  }
+
   return (
     <div className="bg-zinc-800 min-h-screen w-full flex flex-col lg:flex-row items-center lg:gap-8  p-8">
       <div className="flex flex-col gap-4 w-full ">
@@ -77,13 +105,23 @@ function App() {
         <h3 className="text-lg text-[#44fc75] font-bold -mb-2">The Platform Builder:</h3>
         <RichTextEditor 
           ref={editorRef}
-          className="w-full min-h-72 bg-zinc-900 text-white ring-[#44fc75] focus-within:ring-2 rounded-lg overflow-hidden"
+          className="w-full min-h-72 max-h-96 bg-zinc-900 text-white ring-[#44fc75] focus-within:ring-2 rounded-lg overflow-y-auto"
         />
         {error && (
           <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg">
             {error}
           </div>
         )}
+        
+        {/* Version management button */}
+        <button 
+          className="w-full p-2 bg-zinc-700 text-white font-semibold hover:bg-zinc-600 active:bg-zinc-800 
+                     transition-colors border-2 border-zinc-600 flex items-center justify-center gap-2 rounded-lg"
+          onClick={() => setIsVersionModalOpen(true)}
+        >
+          📄 Manage Versions
+        </button>
+        
         <button 
           className={`
             w-full p-2 bg-[#44fc75] text-black font-semibold hover:bg-[#3ce069] active:bg-[#35c75d] 
@@ -135,6 +173,12 @@ function App() {
       <LabModal
         isOpen={isLabModalOpen}
         onClose={() => setIsLabModalOpen(false)}
+      />
+      <VersionModal
+        isOpen={isVersionModalOpen}
+        onClose={() => setIsVersionModalOpen(false)}
+        onSaveVersion={handleSaveVersion}
+        onLoadVersion={handleLoadVersion}
       />
     </div>
   )
