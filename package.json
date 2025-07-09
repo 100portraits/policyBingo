@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@blocknote/core": "^0.33.0",
+    "@blocknote/mantine": "^0.33.0",
+    "@blocknote/react": "^0.33.0",
     "@tailwindcss/vite": "^4.1.11",
     "@types/hyphen": "^1.6.7",
     "hyphen": "^1.10.6",

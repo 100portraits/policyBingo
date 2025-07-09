@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { sendRequest, RateLimitError } from "./services/llmService"
 import type { BingoItem, BingoItemModal } from "./types/models"
 import { bingoItemModals } from "./data/bingoItemModals"
@@ -6,10 +6,10 @@ import { ExplanationModal } from "./components/explanationModal"
 import { LabModal } from "./components/labModal"
 import { bingoItems } from "./data/bingoItems"
 import { BingoBoard } from "./components/BingoBoard"
+import { RichTextEditor, type RichTextEditorRef } from "./components/RichTextEditor"
 
 function App() {
 
-  const [userText, setUserText] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showingResults, setShowingResults] = useState(false)
   const [currentModal, setCurrentModal] = useState<BingoItemModal | null>(null)
@@ -18,14 +18,22 @@ function App() {
 
   const [bingoBoard, setBingoBoard] = useState<BingoItem[]>(bingoItems)
 
+  // Ref to access the RichTextEditor methods
+  const editorRef = useRef<RichTextEditorRef>(null)
+
   const handleGenerate = async () => {
-    if (!userText.trim()) return
+    // Get plain text content from the editor
+    if (!editorRef.current) return
+    
+    const plainText = await editorRef.current.getPlainText()
+    
+    if (!plainText) return
     setIsLoading(true)
     setError(null)
     
     try {
       const response = await sendRequest({
-        userText: userText,
+        userText: plainText,
         bingoItems: bingoItems
       })
       const matchesList = response.results.matchedItems
@@ -63,14 +71,13 @@ function App() {
   }
 
   return (
-    <div className="bg-zinc-800 min-h-screen w-full flex flex-col lg:flex-row justify-center gap-8 items-center p-8">
-      <div className="flex flex-col gap-4 md:w-fit w-full">
-        <h1 className="text-4xl font-bold uppercase text-[#44fc75]">Mobiliteit Omdenk Bingo</h1>
-        <textarea 
-          className="w-full p-4 min-h-48 bg-zinc-900 text-white ring-[#44fc75] focus:outline-none focus:ring-2 rounded-lg placeholder:text-zinc-500" 
-          placeholder="Your platform here..." 
-          value={userText} 
-          onChange={(e) => setUserText(e.target.value)} 
+    <div className="bg-zinc-800 min-h-screen w-full flex flex-col lg:flex-row items-center lg:gap-8  p-8">
+      <div className="flex flex-col gap-4 w-full ">
+        <h1 className="text-6xl font-bold uppercase text-[#44fc75] mb-12">Mobiliteit Omdenk Bingo</h1>
+        <h3 className="text-lg text-[#44fc75] font-bold -mb-2">The Platform Builder:</h3>
+        <RichTextEditor 
+          ref={editorRef}
+          className="w-full min-h-72 bg-zinc-900 text-white ring-[#44fc75] focus-within:ring-2 rounded-lg overflow-hidden"
         />
         {error && (
           <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg">
@@ -81,10 +88,10 @@ function App() {
           className={`
             w-full p-2 bg-[#44fc75] text-black font-semibold hover:bg-[#3ce069] active:bg-[#35c75d] 
             transition-colors border-2 border-[#44fc75] flex items-center justify-center gap-2 rounded-lg
-            ${!userText.trim() ? 'opacity-50 cursor-not-allowed' : ''}
+            ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
           `} 
           onClick={handleGenerate}
-          disabled={!userText.trim() || isLoading}
+          disabled={isLoading}
         >
           {isLoading ? (
             <>
@@ -115,10 +122,12 @@ function App() {
           </button>
         </div>
       </div>
+      <div className="flex flex-col gap-4 w-full flex-3/5">
       <BingoBoard 
         bingoBoard={bingoBoard}
         onSquareClick={handleSquareClick}
-      />
+        />
+      </div>
       <ExplanationModal 
         modal={currentModal} 
         onClose={() => setCurrentModal(null)} 
