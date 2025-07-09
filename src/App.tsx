@@ -6,6 +6,7 @@ import { bingoItemModals } from "./data/bingoItemModals"
 import { ExplanationModal } from "./components/explanationModal"
 import { LabModal } from "./components/labModal"
 import { bingoItems } from "./data/bingoItems"
+import { BingoBoard } from "./components/bingoBoard"
 
 function App() {
 
@@ -115,21 +116,10 @@ function App() {
           </button>
         </div>
       </div>
-      <div className="h-full flex items-center justify-center">
-        <div className="aspect-square h-[calc(100vh-4rem)] max-w-[calc(100vh-4rem)]">
-          <div className="grid grid-cols-5 grid-rows-5 gap-2 h-full">
-            {bingoBoard.map((item, index) => (
-              <BingoSquare 
-                key={item.id} 
-                item={item} 
-                isMatched={item.isMatched || false} 
-                alternate={index % 2 === 1}
-                onClick={() => handleSquareClick(item.id)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
+      <BingoBoard 
+        bingoBoard={bingoBoard}
+        onSquareClick={handleSquareClick}
+      />
       <ExplanationModal 
         modal={currentModal} 
         onClose={() => setCurrentModal(null)} 
