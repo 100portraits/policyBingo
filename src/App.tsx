@@ -101,7 +101,8 @@ function App() {
   return (
     <div className="bg-zinc-800 min-h-screen w-full flex flex-col lg:flex-row items-center lg:gap-8  p-8">
       <div className="flex flex-col gap-4 w-full ">
-        <h1 className="text-6xl font-bold uppercase text-[#44fc75] mb-12">Mobiliteit Omdenk Bingo</h1>
+        <img src="/LAB_logo.jpg" alt="Lab of Through" className="w-32 h-32" />
+        <h1 className="lg:text-5xl font-bold uppercase text-[#44fc75] mb-8">Mobiliteit Omdenk Bingo</h1>
         <h3 className="text-lg text-[#44fc75] font-bold -mb-2">The Platform Builder:</h3>
         <RichTextEditor 
           ref={editorRef}

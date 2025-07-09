@@ -1,7 +1,7 @@
 import { forwardRef, useImperativeHandle } from "react"
 import { BasicTextStyleButton, BlockTypeSelect, FormattingToolbar, useCreateBlockNote } from "@blocknote/react"
 import { BlockNoteView } from "@blocknote/mantine"
-import { VersionManager, type SavedVersion } from "../utils/versionManager"
+import { VersionManager, type SavedVersion } from "../services/versionManager"
 
 export interface RichTextEditorRef {
   getPlainText: () => Promise<string>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { VersionManager, type SavedVersion } from "../utils/versionManager"
+import { VersionManager, type SavedVersion } from "../services/versionManager"
 
 interface VersionModalProps {
   isOpen: boolean
@@ -119,7 +119,10 @@ export const VersionModal = ({
       >
         <div className="flex flex-col gap-4 h-full">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-[#44fc75]">Version Manager</h2>
+            <div className="flex flex-col gap-2">
+              <h2 className="text-2xl font-bold text-[#44fc75]">Version Manager</h2>
+              <h3 className="text-sm text-zinc-400">These versions are saved in your browser's local storage. No data is sent to any server.</h3>
+            </div>
             <button 
               onClick={handleClose}
               className="text-zinc-400 hover:text-white text-2xl"
