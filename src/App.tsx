@@ -4,10 +4,12 @@ import type { BingoItem, BingoItemModal } from "./types/models"
 import { bingoItemModals } from "./data/bingoItemModals"
 import { ExplanationModal } from "./components/explanationModal"
 import { LabModal } from "./components/labModal"
-import { VersionModal } from "./components/VersionModal"
+import { SaveVersionModal } from "./components/SaveVersionModal"
+import { LoadVersionModal } from "./components/LoadVersionModal"
 import { bingoItems } from "./data/bingoItems"
 import { BingoBoard } from "./components/BingoBoard"
 import { RichTextEditor, type RichTextEditorRef } from "./components/RichTextEditor"
+import { FolderClosed, Save } from "lucide-react"
 
 function App() {
 
@@ -15,7 +17,8 @@ function App() {
   const [showingResults, setShowingResults] = useState(false)
   const [currentModal, setCurrentModal] = useState<BingoItemModal | null>(null)
   const [isLabModalOpen, setIsLabModalOpen] = useState(false)
-  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false)
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false)
+  const [isLoadModalOpen, setIsLoadModalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [bingoBoard, setBingoBoard] = useState<BingoItem[]>(bingoItems)
@@ -114,14 +117,25 @@ function App() {
           </div>
         )}
         
-        {/* Version management button */}
-        <button 
-          className="w-full p-2 bg-zinc-700 text-white font-semibold hover:bg-zinc-600 active:bg-zinc-800 
-                     transition-colors border-2 border-zinc-600 flex items-center justify-center gap-2 rounded-lg"
-          onClick={() => setIsVersionModalOpen(true)}
-        >
-          📄 Manage Versions
-        </button>
+        {/* Version management buttons */}
+        <div className="flex gap-2 -mt-1 w-full mb-2">
+          <button 
+            className="p-2 px-4 w-fit bg-zinc-700 text-white font-semibold hover:bg-zinc-600 active:bg-zinc-800 
+                       transition-colors border-2 border-zinc-600 flex items-center justify-center gap-2 rounded-lg"
+            onClick={() => setIsSaveModalOpen(true)}
+          >
+            <Save className="w-4 h-4" />
+            <span>Save</span>
+          </button>
+          <button 
+            className="p-2 px-4 w-fit bg-zinc-700 text-white font-semibold hover:bg-zinc-600 active:bg-zinc-800 
+                       transition-colors border-2 border-zinc-600 flex items-center justify-center gap-2 rounded-lg"
+            onClick={() => setIsLoadModalOpen(true)}
+          >
+            <FolderClosed className="w-4 h-4" />
+            <span>Load</span>
+          </button>
+        </div>
         
         <button 
           className={`
@@ -175,10 +189,14 @@ function App() {
         isOpen={isLabModalOpen}
         onClose={() => setIsLabModalOpen(false)}
       />
-      <VersionModal
-        isOpen={isVersionModalOpen}
-        onClose={() => setIsVersionModalOpen(false)}
-        onSaveVersion={handleSaveVersion}
+      <SaveVersionModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        onSave={handleSaveVersion}
+      />
+      <LoadVersionModal
+        isOpen={isLoadModalOpen}
+        onClose={() => setIsLoadModalOpen(false)}
         onLoadVersion={handleLoadVersion}
       />
     </div>
