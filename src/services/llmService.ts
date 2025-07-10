@@ -15,21 +15,24 @@ export class RateLimitError extends Error {
 }
 
 const buildSystemPrompt = (bingoItems: BingoItem[]): string => {
-  const itemsWithIds = bingoItems.map(item => 
-    `${item.id}: ${item.value} (${item.keywords.join(", ")})`)
+  const regularItems = bingoItems.filter(item => item.id !== 13);
+  const itemsText = regularItems.map(item => 
+    `ID ${item.id}: ${item.value} | Keywords: ${item.keywords.join(", ")}`
+  ).join("\n");
 
-  return `You are a helpful assistant that analyzes user text to find matches with bingo items. You will receive a list of bingo items, each with a unique id and a set of keywords. 
-  
-  Your task is to identify which bingo items match the user's text based on the keywords provided.
+  return `You are a helpful assistant that analyzes Dutch/English mobility platform text for a bingo game. Each bingo item has an ID, main value, and related keywords. Your task is to analyse the user text and determine if the bingo items are present in the user text.
 
-  Consider the following when analyzing the user text:
-  - The user text is in Dutch and may contain variations, abbreviations, or common phrases
-  - Use a combination of exact keyword matching, common variations, and clear English-Dutch equivalents
+  Bingo items: 
+  ${itemsText}
 
-  Bingo items: ${itemsWithIds.join(", ")}
+  A user text contains a bingo item when you can find:
+  1. Exact matches with the bingo item value or its keywords
+  2. Directly related keywords, synonyms, or abbreviations of the bingo item value
 
-  Provide a JSON response with the speficied structure.
-  If no items are matched, return: {"matches": []}`
+  Be precise in your analysis and conservative in bingo item matches. If a bingo item is not clearly present, do not include it in the results.
+
+  Return your results in the specified JSON format.
+  If no bingo items are present in the user text, return: {"matches": []}`
 }
 
 //send request to LLM with openrouter
@@ -42,6 +45,7 @@ export const sendRequest = async (request: AnalysisRequest) => {
   }
 
   const systemPrompt = buildSystemPrompt(request.bingoItems)
+  console.log("System Prompt:", systemPrompt);
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -49,7 +53,7 @@ export const sendRequest = async (request: AnalysisRequest) => {
       "Authorization": `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`
     },
     body: JSON.stringify({
-      model: "google/gemini-2.0-flash-001",
+      model: "google/gemini-2.5-flash",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: request.userText }],
@@ -67,8 +71,15 @@ export const sendRequest = async (request: AnalysisRequest) => {
                   type: "object",
                   properties: {
                     id: { type: "integer" },
-                    motivation: { type: "string" },
-                    evidence: { type: "string" }
+                    motivation: { 
+                      type: "string" , 
+                      description: "Short explanation of why this item matches the user text",
+                    },
+                    evidence: { 
+                      type: "array",
+                      items: { type: "string" },
+                      description: "A set of exact words or phrases from the user text (no duplicates)",
+                     }
                   },
                   required: ["id", "motivation", "evidence"],
                   additionalProperties: false,
@@ -80,9 +91,10 @@ export const sendRequest = async (request: AnalysisRequest) => {
           }
         }
       },
-      max_tokens: 1000,
-      temperature: 0.2,
+      max_tokens: 2000,
+      temperature: 0.0,
       top_p: 0.9,
+      data_collection: "deny",
     })
   })
 
@@ -105,7 +117,6 @@ export const formatResponse = (response: string): AnalysisResponse => {
   try {
     const parsedResponse = JSON.parse(response);
     
-    // With structured output, we can trust the schema is followed
     const matchedItems: MatchedItem[] = parsedResponse.matches.map((match: any) => ({
       id: match.id,
       motivation: match.motivation,
